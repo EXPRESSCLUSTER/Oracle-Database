@@ -387,7 +387,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 2. Set environment variables
     ```bat
     > set ORACLE_SID=sid1
-    > setx /m ORACLE_SID "sid1"
+    > setx ORACLE_SID "sid1" /m 
     ```
 
 3. Start Comand Prompt as an Administrator and start LSNRCTL
