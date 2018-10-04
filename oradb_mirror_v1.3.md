@@ -510,4 +510,5 @@ SQL> alter profile ORA_STIG_PROFILE limit PASSWORD_LIFE_TIME unlimited;
 
 ----
 2019.09.28	rev.1.2	Ogata Yosuke <y-ogata@hg.jp.nec.com>	1st issue
+
 2019.09.28	rev.1.3	Miyamoto Kazuyuki <k-miyamoto@pu.jp.nec.com>	Minor update
