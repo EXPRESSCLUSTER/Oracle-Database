@@ -237,7 +237,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     > oradim -edit -sid sid1 -startmode auto
     ```
     
-    Note: The database starts automatically after starting OracleServiceSID1
+    Note: The database is started automatically after starting OracleServiceSID1
 
 ##### On Secondary server
 19. Logon as orasys
