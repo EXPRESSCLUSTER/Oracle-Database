@@ -229,11 +229,13 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 17. Change database startmode
 
     ```bat
-    > oradim -edit -sid <SID name> -startmode manual
+    > oradim -edit -sid <SID name> -startmode auto
     
     e.g.
-    > oradim -edit -sid sid1 -startmode manual
+    > oradim -edit -sid sid1 -startmode auto
     ```
+    
+    Note: The database starts automatically after starting OracleServiceSID1
 
 ##### On Secondary server
 18. Logon as orasys
@@ -241,10 +243,10 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 19. Create database service
 
     ```bat
-    > oradim -new -sid <SID name> -startmode manual
+    > oradim -new -sid <SID name> -startmode auto
     
     e.g.
-    > oradim -new -sid sid1 -startmode manual
+    > oradim -new -sid sid1 -startmode auto
     ```
     
 20. Create a password file
