@@ -230,10 +230,8 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
     ```bat
     > oradim -edit -sid <SID name> -startmode auto
-    ```
-
+    
     e.g.
-    ```bat
     > oradim -edit -sid sid1 -startmode auto
     ```
 
@@ -244,11 +242,31 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
     ```bat
     > oradim -new -sid <SID name> -startmode auto
-    ```
     
     e.g.
-    ```bat
     > oradim -new -sid sid1 -startmode auto
+    ```
+    
+20. Create a password file
+
+    The password is recommended to be consistent with the password defined in **14. User Crredentials:**
+    
+    - If Oracle Database version is prior to 12.2
+    
+    ```bat
+    > orapwd file=%ORACLE_HOME%\database\PWD<SID name>.ora password=<password>
+    
+    e.g.
+    > orapwd file=C:\app\oradb\product\12.2.0\dbhome_1\database\PWDSID1.ora password=oracle
+    ```
+    
+    - If Oracle Database version is 12.2 or greater
+    
+    ```bat
+    > orapwd file=%ORACLE_HOME%\database\PWD<SID name>.ora password=<password> format=12
+    
+    e.g.
+    > orapwd file=C:\app\oradb\product\12.2.0\dbhome_1\database\PWDSID1.ora password=oracle format=12
     ```
     
 ### Create listener
