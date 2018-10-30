@@ -458,20 +458,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
 ##### On Secondary server
 11. Create a listener service in the same way as a primary server, but **please skip the step 6**.
-12. Confirm that OracleService and listerner service are being stopped, and move a failover group to a primary server
-
-### Change service configurations
-
-##### On Primary and Secondary server
-
-The start/stop sequence of Oracle service and listener service is controlled by ECX. Therefore, these services should not be started automatically.
-
-1. Change the Startup Type of Oracle services and listener services to **Manual**
-    ```bat
-    > services.msc
-    ```
-2. Stop an OracleService and a listener service
-    - e.g. `OracleServiceSID1` and `OracleOraDB12Home1TNSListener`
+12. Move a failover group to a primary server
 
 ### Create resources for database on Builder
 
