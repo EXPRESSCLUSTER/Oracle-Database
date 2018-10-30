@@ -321,16 +321,10 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     ```
     
 ##### On Primary server
-3. Start database
+3. Set LOCAL_LISTENER
 
     ```bat
     > sqlplus / as sysdba
-    SQL> startup
-    ```
-
-4. Set LOCAL_LISTENER
-
-    ```bat
     SQL> alter system set LOCAL_LISTENER='listener';
     ```
     
