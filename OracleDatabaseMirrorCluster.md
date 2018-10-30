@@ -448,16 +448,17 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     > sqlplus system/<password>@SID1PDB
     ```
     
-9. Stop a listener service
+9. Change the Startup Type of Oracle services and listener services to **Manual**
     ```bat
-    LSNRCTL> stop listener
+    > services.msc
     ```
     
-10. Stop OracleService and move a failover group to a stand-by server
+10. Stop an OracleService and a listener service
+    - e.g. `OracleServiceSID1` and `OracleOraDB12Home1TNSListener`
 
 ##### On Secondary server
 11. Create a listener service in the same way as a primary server, but **please skip the step 6**.
-12. Stop OracleService and listerner service, and move a failover group to a primary server
+12. Confirm that OracleService and listerner service are being stopped, and move a failover group to a primary server
 
 ### Change service configurations
 
