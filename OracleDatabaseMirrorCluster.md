@@ -331,7 +331,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 4. Set LOCAL_LISTENER
 
     ```bat
-    SQL> alter system set LOCAL_LISTENER='listener' scope=spfile;
+    SQL> alter system set LOCAL_LISTENER='listener';
     ```
     
 ### Put a parameter file in a data partition on the mirror disk and link it to a database
