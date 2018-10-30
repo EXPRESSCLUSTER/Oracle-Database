@@ -321,11 +321,17 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     ```
     
 ##### On Primary server
-3. Set LOCAL_LISTENER
+3. Start database
 
     ```bat
     > sqlplus / as sysdba
-    SQL> alter system set LOCAL_LISTENER='listener';
+    SQL> startup
+    ```
+
+4. Set LOCAL_LISTENER
+
+    ```bat
+    SQL> alter system set LOCAL_LISTENER='listener' scope=spfile;
     ```
     
 ### Put a parameter file in a data partition on the mirror disk and link it to a database
@@ -345,10 +351,10 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 ##### On Primary and Secondary server
 3. Link the PFILE to the database
     ```bat
-    oradim -edit -sid sid1 -startup auto -pfile <PFILE>
+    oradim -edit -sid sid1 -pfile <PFILE>
     
     e.g.
-    oradim -edit -sid sid1 -startup auto -pfile F:\INITSID1.ORA
+    oradim -edit -sid sid1 -pfile F:\INITSID1.ORA
     ```
     
 ### Change permissions of files on the mirror disk
