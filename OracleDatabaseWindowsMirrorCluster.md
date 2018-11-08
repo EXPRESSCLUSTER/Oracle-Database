@@ -1,4 +1,4 @@
-# Oracle Database 12c (Windows) Quick Start Guide for EXPRESSCLUSTER X (Data mirror)
+# Oracle Database 12c Quick Start Guide for EXPRESSCLUSTER X (Windows data mirror)
 
 ## About This Guide
 
