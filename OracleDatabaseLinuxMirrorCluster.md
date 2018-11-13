@@ -150,9 +150,9 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
     - semmsl, semmns, semopm, semmni
     
-    ```bat
-    # /sbin/sysctl -a | grep sem
-    ```
+        ```bat
+        # /sbin/sysctl -a | grep sem
+        ```
     
         - **semmsl** should be more than **250**.
         - **semmns** should be more than **32000**.
@@ -161,9 +161,9 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     
     - shmmax, shmmni, shmall
     
-    ```bat
-    # /sbin/sysctl -a | grep shm
-    ```
+        ```bat
+        # /sbin/sysctl -a | grep shm
+        ```
     
         - **shmmax** should be more than **half of RAM size**
         - **shmmni** should be more than **4096**.
@@ -171,51 +171,51 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     
     - file-max
     
-    ```bat
-    # /sbin/sysctl -a | grep file-max
-    ```
+        ```bat
+        # /sbin/sysctl -a | grep file-max
+        ```
     
         - **file-max** should be more than **6815744**
     
     - ip_local_port_range
     
-    ```bat
-    # /sbin/sysctl -a | grep ip_local_port_range
-    ```
+        ```bat
+        # /sbin/sysctl -a | grep ip_local_port_range
+        ```
     
         - **ip_local_port_range** should be more than **9000** and less than **65500**.
     
     - rmem_default, rmem_max
     
-    ```bat
-    # /sbin/sysctl -a | grep net.core.rmem
-    ```
+        ```bat
+        # /sbin/sysctl -a | grep net.core.rmem
+        ```
     
         - **rmem_default** should be more than **262144**.
         - **rmem_max** should be more than **4194304**.
     
     - wmem_default, wmem_max
     
-    ```bat
-    # /sbin/sysctl -a | grep net.core.wmem
-    ```
+        ```bat
+        # /sbin/sysctl -a | grep net.core.wmem
+        ```
     
         - **wmem_default** should be more than **262144**.
         - **wmem_max** should be more than **1048576**.
     
     - aio-max-nr
     
-    ```bat
-    # /sbin/sysctl -a | grep aio-max-nr
-    ```
+        ```bat
+        # /sbin/sysctl -a | grep aio-max-nr
+        ```
     
         - **aio-max-nr** should be more than **1048576**.
     
     - panic_on_oops
     
-    ```bat
-    # /sbin/sysctl -a | grep panic_on_oops
-    ```
+        ```bat
+        # /sbin/sysctl -a | grep panic_on_oops
+        ```
     
         - **panic_on_oops** should be more than **1**.
 
