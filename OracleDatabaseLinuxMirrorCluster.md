@@ -37,7 +37,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 		 |  | RAM              : 4GB       |
 		 |  | Cluster Partition: 17MB      |
 		 |  |                    /dev/sdb1 |
-		 |  | data partitioin  : 40GB      |
+		 |  | Data Partition   : 40GB      |
 		 |  |                    /dev/sdb2 |
 		 |  +-----------+------------------+
 		 |              |
@@ -52,7 +52,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 		 |  | RAM              : 4GB       |
 		 |  | Cluster Partition: 17MB      |
 		 |  |                    /dev/sdb1 |
-		 |  | data partitioin  : 40GB      |
+		 |  | Data Partition   : 40GB      |
 		 |  |                    /dev/sdb2 |
 		 |  +------------------------------+
 		 |
