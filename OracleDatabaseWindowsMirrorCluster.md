@@ -1,8 +1,8 @@
-# Oracle Database 12c Quick Start Guide for EXPRESSCLUSTER X (Windows data mirror)
+# Oracle Database 19c / 12c Quick Start Guide for EXPRESSCLUSTER X (Windows data mirror)
 
 ## About This Guide
 
-This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X using mirror disks with 2 nodes. The guide assumes its readers to have EXPRESSCLUSTER X basic knowledge and setup skills.
+This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUSTER X (ECX) using mirror disks with 2 nodes. The guide assumes its readers to have EXPRESSCLUSTER X basic knowledge and setup skills.
 
 ## System Overview
 
@@ -11,25 +11,29 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
   - IP rechable each other
   - Having mirror disk
     - At least 2 partitions are required on each mirror disk.
-      - cluster partition having volume size of 17MB.
-      - data partition having volume size depends on Database sizing.
+      - Cluster partition size depends on ECX version.
+        - X 4.0 or later: 1024MB
+        - X 3.3: 17MB
+      - Data partition size depends on Database sizing.
 - Oracle Database are installed on local partition on each server.
 - Database files are created on data partition.
 
 
 ### System Configuration
-- Windows Server 2016 Datacenter
-- Oracle Database 12c R2
+- Windows Server 2019 Datacenter / 2016 Datacenter
+- Oracle Database 19c / 12c R2
   - 12c and 12c R1 are not confirmed. Please let the authors (see last part of this guide) know if you have confirmed the procedure in this guide can be applied to other than 12c R2.
-- EXPRESSCLUSTER X 3.3 (11.35)
+- EXPRESSCLUSTER X 3.3 (11.35) or later
+
+        Sample configuration
 
 		<LAN>
 		 |
 		 |  +--------------------------+
 		 +--| Primary Server           |
-		 |  | - Windows Server 2016    |
-		 |  | - Oracle Database 12c    |
-		 |  | - EXPRESSCLUSTER X 3.3   |
+		 |  | - Windows Server 2019    |
+		 |  | - Oracle Database 19c    |
+		 |  | - EXPRESSCLUSTER X 4.2   |
 		 |  |                          |
 		 |  | RAM   : 8GB              |
 		 |  | Disk 0: 30GB OS          |
@@ -43,9 +47,9 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 		 |              |
 		 |  +-----------+--------------+
 		 +--| Secondary Server         |
-		 |  | - Windows Server 2016    |
-		 |  | - Oracle DB 12c          |
-		 |  | - EXPRESSCLUSTER X 3.3   |
+		 |  | - Windows Server 2019    |
+		 |  | - Oracle DB 19c          |
+		 |  | - EXPRESSCLUSTER X 4.2   |
 		 |  |                          |
 		 |  | RAM   : 8GB              |
 		 |  | Disk 0: 30GB OS          |
@@ -255,7 +259,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
     The password is recommended to be consistent with the password defined in **14. User Crredentials:**
     
-    - If Oracle Database version is prior to 12.2
+    - If Oracle Database version is earlier than 12.2
     
     ```bat
     > orapwd file=%ORACLE_HOME%\database\PWD<SID name>.ora password=<password>
@@ -264,7 +268,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     > orapwd file=C:\app\oradb\product\12.2.0\dbhome_1\database\PWDSID1.ora password=oracle
     ```
     
-    - If Oracle Database version is 12.2 or greater
+    - If Oracle Database version is 12.2 or later
     
     ```bat
     > orapwd file=%ORACLE_HOME%\database\PWD<SID name>.ora password=<password> format=12
@@ -365,11 +369,22 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
 ##### On Secondary server
 3. Add fullcontrol permissions to access all files and folders in a data partition to orasys and oradb
-    ```bat
-    e.g. 
-    > cacls F: /t /e /c /g orasys:f
-    > cacls F: /t /e /c /g oradb:f
-    ```
+    - If the server OS is Windows Server 2016
+        ```bat
+        > cacls <Data partition> /t /e /c /g <username>:f
+
+        e.g. 
+        > cacls F: /t /e /c /g orasys:f
+        > cacls F: /t /e /c /g oradb:f
+        ```
+    - If the server OS is Windows Server 2019
+        ```bat
+        > icacls <Data partition> /t /c /grant <username>:F
+
+        e.g. 
+        > icacls F: /t /c /grant orasys:F
+        > icacls F: /t /c /grant oradb:F
+        ```
     
 ### Configure a client
 
@@ -407,6 +422,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
 ##### On Primary server
 1. Move a failover group to a primary server and start OracleService
+
 2. Set environment variables
     ```bat
     > set ORACLE_SID=sid1
@@ -453,9 +469,9 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     ```bat
     > services.msc
     ```
+    - e.g. `OracleServiceSID1` and `OracleOraDB12Home1TNSListener`
     
 10. Stop an OracleService and a listener service
-    - e.g. `OracleServiceSID1` and `OracleOraDB12Home1TNSListener`
     
 11. Move a failover group to another server
 
@@ -465,15 +481,17 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 ### Create resources for database on Builder
 
 ##### On Primary server
-1. Create a service resource for database
+1. Confirm that an OracleService and a listerner service are stopped on both servers.
+
+2. Create a service resource for database
     - Follow the default dependency
     - **Service Name** is OracleServiceSID1
     
-2. Create a service resource for listener
+3. Create a service resource for listener
     - **Dependent Resources** is a service resource for database
-    - **Service Name** is OracleOraDB12Home1TNSListener
+    - **Service Name** is OracleOraDB\<version\>Home1TNSListener
     
-3. Apply the configuration file
+4. Apply the configuration file
 
 ### Create monitor resources on Builder
 
@@ -521,6 +539,8 @@ SQL> alter profile ORA_STIG_PROFILE limit PASSWORD_LIFE_TIME unlimited;
 ```
 
 ----
-2019.09.28	rev.1.2	Ogata Yosuke <y-ogata@hg.jp.nec.com>	1st issue
+2018.09.28	rev.1.2	Ogata Yosuke <y-ogata@hg.jp.nec.com>	1st issue
 
-2019.09.28	rev.1.3	Miyamoto Kazuyuki <k-miyamoto@pu.jp.nec.com>	Minor update
+2018.09.28	rev.1.3	Miyamoto Kazuyuki <k-miyamoto@pu.jp.nec.com>	Minor update
+
+2020.09.02  rev.1.4	Ogata Yosuke <y-ogata@hg.jp.nec.com>	Oracle Database 19c and ECX 4.x is covered
