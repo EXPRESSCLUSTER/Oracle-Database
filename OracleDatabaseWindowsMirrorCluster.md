@@ -490,6 +490,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
 3. Create a service resource for listener
     - **Dependent Resources** is a service resource for database
     - **Service Name** is OracleOraDB\<version\>Home1TNSListener
+    - **Retry Count at Deactivation Failure** should be larger than 0 to avoid a known Oracle Listener stop issue.
     
 4. Apply the configuration file
 
