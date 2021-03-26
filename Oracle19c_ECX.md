@@ -8,11 +8,13 @@ For the detailed information of EXPRESSCLUSTER X, please refer to [this site](ht
 
 
 ## Configurations Description
+
 In this document, create 2 nodes (Node1 and Node2 as below) mirror disk type cluster.
 Prepare Oracle HA By using EXPRESSCLUSTER X. 
 
 
 ## Software Versions
+
 - Oracle 19c    
 - EXPRESSCLUSTER X 4.2 for Linux (internal version：4.2.0-1)
 - EXPRESSCLUSTER X license
@@ -20,6 +22,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
   - EXPRESSCLUSTER X Replicator 4.2 for Linux
 
 ## Cluster Configurations
+
 - Group resources
   - exec resource
   - floting IP resource
@@ -31,6 +34,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
   - exec monitor resource
   
 ## Oracle Prerequisites and Installation Procedure
+
   - System Requirements for oracle-19c
   - Please refer and check to [this site](https://oracle-base.com/articles/19c/oracle-db-19c-installation-on-oracle-linux-7) 
  
@@ -46,6 +50,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
   - Make sure before installion a swap is created on the both machine.   
 
 ## EXPRESSCLUSTER setup  
+
   - Let us consider the following 2 node cluster and try to understand it.
 
   Cluster Information:-
@@ -139,6 +144,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
 - Alter database (*.DBF) files by executing the following command for all moved database files:
 
 ## SYNTAX 
+
    SQL> alter database move datafile 'original file path' to 'new file path';
 
 Example: 
@@ -344,9 +350,12 @@ conn / as sysdba
       SQL> select *  from v$logfile;
 
 #### Set Listner on both the servers
+
 - Replace the Hostname with the Virtual Computer Name in the “Listener.ora” "tnsnames.ora" file (/home/oracle/network/admin) to allow make the connection remotely on all the nodes in the cluster.
 
 ### Create Systemd file
 -
+
 ### Create Exec reouce for oracle service
 -
+
