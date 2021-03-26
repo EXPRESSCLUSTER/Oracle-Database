@@ -372,19 +372,19 @@ conn / as sysdba
    ### [root@dlp ~]# vi /usr/lib/systemd/system/orcl@lsnrctl.service    
            
         # this is an example, modify for free
-        [Unit]
-        Description=Oracle Net Listener
-        After=network.target
+          [Unit]
+          Description=Oracle Net Listener
+          After=network.target
 
-        [Service]
-        Type=forking
-        EnvironmentFile=/etc/sysconfig/orcl.oracledb
-        ExecStart=/home/oracle/bin/lsnrctl start
-        ExecStop=/home/oracle/bin/lsnrctl stop
-        User=oracle
+          [Service]
+          Type=forking
+          EnvironmentFile=/etc/sysconfig/orcl.oracledb
+          ExecStart=/home/oracle/bin/lsnrctl start
+          ExecStop=/home/oracle/bin/lsnrctl stop
+          User=oracle
 
-        [Install]
-        WantedBy=multi-user.target
+          [Install]
+          WantedBy=multi-user.target
 
 - Configure database service
        
