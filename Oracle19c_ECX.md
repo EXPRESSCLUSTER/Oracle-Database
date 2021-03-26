@@ -353,9 +353,101 @@ conn / as sysdba
 
 - Replace the Hostname with the Virtual Computer Name in the “Listener.ora” "tnsnames.ora" file (/home/oracle/network/admin) to allow make the connection remotely on all the nodes in the cluster.
 
-### Create Systemd file
--
+### Create Systemd Setting file for Oracle Database services.
 
-### Create Exec reouce for oracle service
--
+- Login as root user and create Systemd setting files.
 
+
+   ### [root@dlp ~]# vi /etc/sysconfig/orcl.oracledb  
+
+       
+          # create new : define environment variables
+          ORACLE_BASE=/u01/app/oracle
+          ORACLE_HOME=/home/oracle
+          ORACLE_SID=orcl
+        
+         - configure listener service
+
+  
+   ### [root@dlp ~]# vi /usr/lib/systemd/system/orcl@lsnrctl.service    
+           
+        # this is an example, modify for free
+        [Unit]
+        Description=Oracle Net Listener
+        After=network.target
+
+        [Service]
+        Type=forking
+        EnvironmentFile=/etc/sysconfig/orcl.oracledb
+        ExecStart=/home/oracle/bin/lsnrctl start
+        ExecStop=/home/oracle/bin/lsnrctl stop
+        User=oracle
+
+        [Install]
+        WantedBy=multi-user.target
+
+- Configure database service
+       
+    ### [root@dlp ~]# vi /usr/lib/systemd/system/orcl@oracledb.service   
+   
+             
+        # this is an example, modify for free
+        [Unit]
+        Description=Oracle Database service
+        After=network.target lsnrctl.service
+
+        [Service]
+        Type=forking
+        EnvironmentFile=/etc/sysconfig/db01.oracledb
+        ExecStart=/home/oracle/bin/dbstart $ORACLE_HOME
+        ExecStop=/home/oracle/bin/dbshut $ORACLE_HOME
+        User=oracle
+
+        [Install]
+        WantedBy=multi-user.target
+
+[root@dlp ~]#systemctl daemon-reload  
+
+[root@dlp ~]# systemctl enable orcl@lsnrctl orcl@oracledb  
+
+
+## Create Exec reouce for oracle service
+
+### On Primary Server
+1. Add one exec resource to the failover group
+	- failover group
+		- exec
+			- start.sh: Refer a [sample script](#startsh)
+			- stop.sh:  Refer a [sample script](#stopsh)
+1. Apply the configuration
+1. Start the exec resource
+
+## Sample scripts
+### start.sh
+<a id="startsh"></a>
+```bat
+#! /bin/sh
+#***************************************
+#*              start.sh               *
+#***************************************
+
+#ulimit -s unlimited
+
+systemctl start orcl@oracledb.service 
+
+exit $?
+```
+### stop.sh
+<a id="stopsh"></a>
+```bat
+#! /bin/sh
+#***************************************
+#*              start.sh               *
+#***************************************
+
+#ulimit -s unlimited
+
+systemctl stop orcl@oracledb.service 
+
+exit $?
+```
