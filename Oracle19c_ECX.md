@@ -20,6 +20,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
 - EXPRESSCLUSTER X license
   - EXPRESSCLUSTER X 4.2 for Linux
   - EXPRESSCLUSTER X Replicator 4.2 for Linux
+  - EXPRESSCLUSTER X Database Agent 4.2 for Linux (If you are planning to use Oracle monitor resource)
 
 ## Cluster Configurations
 
@@ -31,7 +32,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
   - floting IP monitor resource
   - mirror disk connect monitor resource
   - mirror disk monitor resource
-  - exec monitor resource
+  - Oracle monitor resource (Database Agent license is required.))
   
 ## Oracle Prerequisites and Installation Procedure
 
@@ -53,7 +54,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
 
   - Let us consider the following 2 node cluster and try to understand it.
 
-  Cluster Information:-
+### Cluster Information:-
   ---
   ||Node1(Active)|Node2(Stanby)|
   |---|---|---|
@@ -62,7 +63,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
   |cluster partition|/dev/sdb1|/dev/sdb1|
   |data partition|/dev/sdc2|/dev/sdc2|
     
-  Failover Group Information:-
+### Failover Group Information:-
   ---
   |Parameter|Value|
   |---|---|
@@ -98,15 +99,15 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
 
 - Switch to oracle user and export the ORACLE_SID environment variable to target SID (example: orcl):
            
-         export ORACLE_SID= orcl
+      export ORACLE_SID= orcl
 
 - Start SQLPlus in command console:
          
-         sqlplus as sysdba
+      sqlplus as sysdba
 
 - Connect to target database instance:
     
-         Enter user-name: /as sysdba
+      Enter user-name: /as sysdba
 
 - You should see the status at the SQLPlus prompt as:
 
@@ -114,74 +115,73 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
 
 - Stop target database instance:
          
-        SQL> shutdown immediate;
+      SQL> shutdown immediate;
 
 - Check the status at the SQL prompt as below:
    - Database closed.
    - Database dismounted.
    - ORACLE instance shut down.
 
- - Copy the database (*.DBF) files from default directory to mirrored disk directory Some typical database files include the following:
+ - Copy the database (*.DBF) files from default directory to mirrored disk directory. Some typical database files include the following:
   
    - SYSAUX01.DBF
    - SYSTEM01.DBF
    - UNDOTBS01.DBF
    - USERS01.DBF
            
-           scp -r  /u01/app/oracle/oradata/ORCL/sysaux01.dbf   /oradata/ORCL/
+          scp -r  /u01/app/oracle/oradata/ORCL/sysaux01.dbf   /oradata/ORCL/
 
-           scp -r  /u01/app/oracle/oradata/ORCL/system01.dbf   /oradata/ORCL/
+          scp -r  /u01/app/oracle/oradata/ORCL/system01.dbf   /oradata/ORCL/
 
-           scp -r  /u01/app/oracle/oradata/ORCL/users01.dbf    /oradata/ORCL/
+          scp -r  /u01/app/oracle/oradata/ORCL/users01.dbf    /oradata/ORCL/
 
-           scp -r  /u01/app/oracle/oradata/ORCL/undotbs01.dbf  /oradata/ORCL/
+          scp -r  /u01/app/oracle/oradata/ORCL/undotbs01.dbf  /oradata/ORCL/
 
 
 - Start and mount database instance:
        
-       SQL> startup mount
+      SQL> startup mount
 
 - Alter database (*.DBF) files by executing the following command for all moved database files:
 
-## SYNTAX 
+  ## SYNTAX 
 
-   SQL> alter database move datafile 'original file path' to 'new file path';
+  SQL> alter database move datafile 'original file path' to 'new file path';
 
-Example: 
-
-
-     SQL> alter database move datafile '/u01/app/oracle/oradata/ORCL/users01.dbf' to '/oradata/ORCL/users01.dbf';
-     
+  Example: 
+    ```
+    SQL> alter database move datafile '/u01/app/oracle/oradata/ORCL/users01.dbf' to '/oradata/ORCL/users01.dbf';
+    ```
+  --> Database altered.
+    ```
+    SQL> alter database move datafile '/u01/app/oracle/oradata/ORCL/sysaux01.dbf' to '/oradata/ORCL/sysaux01.dbf';
+    ```
+  --> Database altered.
+    ```
+    SQL> alter database move datafile '/u01/app/oracle/oradata/ORCL/system01.dbf' to '/oradata/ORCL/system01.dbf';
+    ``` 
+  --> Database altered.
+    ```
+    SQL> alter database move datafile '/u01/app/oracle/oradata/ORCL/undotbs01.dbf' to '/oradata/ORCL/undotbs01.dbf';
+    ```
   --> Database altered.
 
-      SQL> alter database move datafile '/u01/app/oracle/oradata/ORCL/sysaux01.dbf' to '/oradata/ORCL/sysaux01.dbf';
-     
-  --> Database altered.
-
-     SQL> alter database move datafile '/u01/app/oracle/oradata/ORCL/system01.dbf' to '/oradata/ORCL/system01.dbf';
-     
-  --> Database altered.
-
-      SQL> alter database move datafile '/u01/app/oracle/oradata/ORCL/undotbs01.dbf' to '/oradata/ORCL/undotbs01.dbf';
-
-  --> Database altered.
-
- - Open alter database instance:
+- Open alter database instance:
       
-        SQL> alter database open;
+      SQL> alter database open;
 
   --> Database altered.
 
 - Verify new database file locations:
     
-       SQL> select name from v$datafile;
+      SQL> select name from v$datafile;
 
   - The command output should show new location of moved database files.
 
 
 - Create new temporary database file by executing the following command at the prompt:
 
-        SQL> create temporary tablespace temp2 tempfile '/oradata/ORCL/temp02.dbf' size 50M extent management local;
+      SQL> create temporary tablespace temp2 tempfile '/oradata/ORCL/temp02.dbf' size 50M extent management local;
 
    --> Tablespace created.
 
@@ -190,7 +190,7 @@ Example:
 
 - Configure new default temporary database file by executing the following command at the prompt:
 
-       SQL> alter database default temporary tablespace temp2;
+      SQL> alter database default temporary tablespace temp2;
 
    - See the status at the SQL prompt as:
 
@@ -199,7 +199,7 @@ Example:
 
 - Remove original temporary tablespace and data files by executing the following command at the prompt: 
 
-       SQL> drop tablespace temp including contents and datafiles;
+      SQL> drop tablespace temp including contents and datafiles;
 
     - You should see the status at the SQL prompt as:
 
@@ -210,36 +210,36 @@ Example:
 
 - Shutdown target database instance:
      
-        SQL> shutdown immediate;
+      SQL> shutdown immediate;
 
 - Copy log (*.LOG) files from default directory (example: /u01/app/oracle/oradata/orcl) to mirrored disk directory (example: /oradata/orcl). 
 
- - Some typical database log files include the following:
-   - REDO01.LOG
-   - REDO02.LOG
-   - REDO03.LOG        
+  - Some typical database log files include the following:
+    - REDO01.LOG
+    - REDO02.LOG
+    - REDO03.LOG        
    
-EXAMPLE :-
+  EXAMPLE :-
 
-         mv /u01/app/oracle/oradata/ORCL/redo01.log    /oradata/ORCL/
+      mv /u01/app/oracle/oradata/ORCL/redo01.log    /oradata/ORCL/
 
-         chown oracle:oinstall redo01.log
+      chown oracle:oinstall redo01.log
       
-         mv /u01/app/oracle/oradata/ORCL/redo02.log    /oradata/ORCL/
+      mv /u01/app/oracle/oradata/ORCL/redo02.log    /oradata/ORCL/
        
-         chown oracle:oinstall redo02.log
+      chown oracle:oinstall redo02.log
 
-         mv /u01/app/oracle/oradata/ORCL/redo01.log    /oradata/ORCL/
+      mv /u01/app/oracle/oradata/ORCL/redo01.log    /oradata/ORCL/
       
-         chown oracle:oinstall redo03.log
+      chown oracle:oinstall redo03.log
 
- - Restart and mount target database instance:
+- Restart and mount target database instance:
        
-        SQL> startup mount        
+      SQL> startup mount        
 
   - Alter log database files by executing the following command pattern for all moved log files:
 
-  EXAMPLE:- 
+    EXAMPLE:- 
 
         SQL>  alter database rename file '/u01/app/oracle/oradata/ORCL/redo01.log' to '/oradata/ORCL/redo01.log';
 
@@ -258,17 +258,17 @@ EXAMPLE :-
 
   
 
- ## Changing the location of the Control (*.ctl) database files
+## Changing the location of the Control (*.ctl) database files
 
- - Shutdown target database instance:
+- Shutdown target database instance:
      
-     SQL> shutdown immediate;
+      SQL> shutdown immediate;
 
- -  Modify target Oracle instance SPFILE
+- Modify target Oracle instance SPFILE
 
- -  Execute the following SQLPlus command pattern to create PFILE for modification
-         
-         SQL> create pfile from spfile;
+- Execute the following SQLPlus command pattern to create PFILE for modification
+
+      SQL> create pfile from spfile;
 
 - see the status at the SQL prompt similar to:
 
@@ -276,57 +276,54 @@ EXAMPLE :-
 
  - Switch to root user and Copy control (*.CTL) files from default directories to Oracle instance data directory on the mirrored disk (example: /oradata/orcl). Typically, the database control files include the following:
 
-     - CONTROL01.CTL
-     - CONTROL02.CTL  
+    - CONTROL01.CTL
+    - CONTROL02.CTL  
 
-     EXAMPLE :-
+    EXAMPLE :-
 
-            [root@db1 ORCL]# scp -r  /u01/app/oracle/oradata/ORCL/control*    /oradata/ORCL/
+        [root@db1 ORCL]# scp -r  /u01/app/oracle/oradata/ORCL/control*    /oradata/ORCL/
 
-            [root@db1 ORCL]# chown oracle:oinstall control01.ctl
+        [root@db1 ORCL]# chown oracle:oinstall control01.ctl
 
-            [root@db1 ORCL]# chown oracle:oinstall control02.ctl
+        [root@db1 ORCL]# chown oracle:oinstall control02.ctl
 
 - After that go in the path /home/oracle/dbs/initorcl.ora and edit control files location as MD
                       
       [root@db1 ~]# find /home -name initorcl.ora
       
 
-          [oracle@db1 dbs]$ vi initorcl.ora
-          ----------------------------------------------------
-          *.control_files='/oradata/ORCL/control01.ctl','/oradata/ORCL/control02.ctl'
-          ----------------------------------------------------
+      [oracle@db1 dbs]$ vi initorcl.ora
+      ----------------------------------------------------
+      *.control_files='/oradata/ORCL/control01.ctl','/oradata/ORCL/control02.ctl'
+      ----------------------------------------------------
               
-   -  Edit the newly created PFILE and change directory paths in for the parameter “control_files” to the mirrored disk path.
+  - Edit the newly created PFILE and change directory paths in for the parameter “control_files” to the mirrored disk path.
 
 - Start database instance with new parameter file:
 
-       SQL> startup
+      SQL> startup
 
 - Verify control file location changes:
  
-        SQL> show parameter control_files;
+      SQL> show parameter control_files;
 
-All the below commands should be run by the oracle user 
+### All the below commands should be run by the oracle user 
 
- /etc/oratab
+- Edit/etc/oratab, change like follows
 
-change like follows
+      db01:/usr/oracle/database:Y
 
-db01:/usr/oracle/database:Y
+- Edit .bash_profile
 
-vi .bash_profile 
+      export ORACLE_HOME=/home/oracle
 
+      export ORACLE_SID=orcl
 
-export ORACLE_HOME=/home/oracle
+      sqlplus /nolog
 
-export ORACLE_SID=orcl
+      conn / as sysdba
 
-sqlplus /nolog
-
-conn / as sysdba
-
-### Changing the location of the Database files (*.DBF) on the Standby Server
+## Changing the location of the Database files (*.DBF) on the Standby Server
 
 - All the default  (*.DBF) file path is /u01/app/oracle/oradata/ORCL2
 
@@ -349,11 +346,11 @@ conn / as sysdba
   
       SQL> select *  from v$logfile;
 
-#### Set Listner on both the servers
+## Set Listner on both the servers
 
 - Replace the Hostname with the Virtual Computer Name in the “Listener.ora” "tnsnames.ora" file (/home/oracle/network/admin) to allow make the connection remotely on all the nodes in the cluster.
 
-### Create Systemd Setting file for Oracle Database services.
+## Create Systemd Setting file for Oracle Database services.
 
 - Login as root user and create Systemd setting files.
 
@@ -366,7 +363,7 @@ conn / as sysdba
           ORACLE_HOME=/home/oracle
           ORACLE_SID=orcl
         
-         - configure listener service
+- configure listener service
 
   
    ### [root@dlp ~]# vi /usr/lib/systemd/system/orcl@lsnrctl.service    
@@ -406,9 +403,11 @@ conn / as sysdba
         [Install]
         WantedBy=multi-user.target
 
-[root@dlp ~]#systemctl daemon-reload  
+- Reload configuration files
+    ### [root@dlp ~]#systemctl daemon-reload  
 
-[root@dlp ~]# systemctl enable orcl@lsnrctl orcl@oracledb  
+- Change a startup type of the services
+    ### [root@dlp ~]# systemctl enable orcl@lsnrctl orcl@oracledb  
 
 
 ## Create Exec reouce for oracle service
@@ -450,4 +449,37 @@ exit $?
 systemctl stop orcl@oracledb.service 
 
 exit $?
+```
+
+## Create Oracle monitor res1ouce (If you have Database Agent license)
+
+### On Primary Server
+1. Create an Oracle monitor resource
+    - Select a exec resource as **Target Resource** of **Monitor Timing**
+    - Select **listener and instance monitor** as **Monitor Type**
+    - Input a database name as **Connect Command**
+        - e.g. Connect String -> orcl
+    - Input **system** as **User Name**
+    - Input password of **system**
+    - Select **DEFAULT** as **Authority Method**
+    - Input **ORACLE_HOME**
+        - e.g. ORACLE_HOME -> `/home/oracle`
+    - Select **AMERICAN_AMERICA.UTF8** as **Character Set**
+    - Input **Library Path**
+        - e.g. Library Path -> `/home/oracle/lib/libclntsh.so.19.1`
+    - Select a failover group as **Recovery Target**
+        - e.g. Recovery Target -> failover group
+
+1. Apply the configuration file
+1. Start a failover group
+
+## Change PASSWORD_LIFE_TIME unlimited (If you use Oracle monitor)
+
+### On Primary server
+The default password expiration date for user authentication is 180 days. If you use Oracle monitor resource, you should change the password regularly or change the password expiration date to an indefinite time in order to avoid unnecessary monitor failure.
+
+```bat
+> sqlplus system/<password>@SID1
+SQL> alter profile DEFAULT limit PASSWORD_LIFE_TIME unlimited;
+SQL> alter profile ORA_STIG_PROFILE limit PASSWORD_LIFE_TIME unlimited;
 ```
