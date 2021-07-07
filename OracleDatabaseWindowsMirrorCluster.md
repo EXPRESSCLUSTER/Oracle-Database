@@ -33,7 +33,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
 		 +--| Primary Server           |
 		 |  | - Windows Server 2019    |
 		 |  | - Oracle Database 19c    |
-		 |  | - EXPRESSCLUSTER X 4.2   |
+		 |  | - EXPRESSCLUSTER X 4.3   |
 		 |  |                          |
 		 |  | RAM   : 8GB              |
 		 |  | Disk 0: 30GB OS          |
@@ -49,7 +49,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
 		 +--| Secondary Server         |
 		 |  | - Windows Server 2019    |
 		 |  | - Oracle DB 19c          |
-		 |  | - EXPRESSCLUSTER X 4.2   |
+		 |  | - EXPRESSCLUSTER X 4.3   |
 		 |  |                          |
 		 |  | RAM   : 8GB              |
 		 |  | Disk 0: 30GB OS          |
@@ -87,11 +87,27 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
 - Database name          : sid1
 - PDB name               : sid1pdb
 - Oracle base            : `C:\app\oradb`
-- Software location      : `C:\app\oradb\product\12.2.0\dbhome_1`
+- Software location      : `c:\app\oradb\product\19.0.0\dbhome_1`
 - Database files location: `F:\oradata`
 - Fast recovery area     : `F:\fast_recovery_area`
 
 ## System setup
+
+### Prerequisite
+
+##### On Primary and Secondary servers
+1. Change a virtual memory (swap) size
+    1. Open Control Panel
+    1. Go to **System and Security** -> **System**
+    1. Click **Advanced system settings**
+    1. Click **Settings** of **Performance** in **Advanced** tab
+    1. Click **Change** in **Advanced** tab
+    1. Uncheck **Automatically manage paging file size for all drivers**
+    1. Select **Custome size** and input the size to **Initial size** and **Maximize size**
+    1. Click **Set** and **OK**
+        - If physical memory is between 2 GB and 16 GB, then set virtual memory to 1 times the size of the RAM
+        - If physical memory is more than 16 GB, then set virtual memory to 16 GB
+    1. Reboot the machine after applying the settings
 
 ### Basic cluster setup
 
@@ -127,56 +143,60 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
        > compmgmt.msc
        ```
 
-    2. Select **Local Users and Groups** in  the left pane and click **Users**
-    3. Right-click in the center pane and click **New user...**
-    4. Input proper information
+    1. Select **Local Users and Groups** in  the left pane and click **Users**
+    1. Right-click in the center pane and click **New user...**
+    1. Input proper information
         - e.g. Username is `orasys`
         - Uncheck **User must change password at next logon**
-    5. Click **Create**
+    1. Click **Create**
     
-2. Create Oracle home user for database
+1. Create Oracle home user for database
 
     Follow the same steps as orasys to create Oracle home user.
     - e.g. User name is `oradb`
     - Uncheck **User must change password at next logon**
 
-3.  Add orasys to Administrators group
+1.  Add orasys to Administrators group
     1. Open **Computer Management**
     
         ```bat
        > compmgmt.msc
        ```
 
-    2. Select **Local Users and Groups** in  the left pane and click **Groups**
-    3. Select **Administrators** and right-click and click **Add to Group...**
-    4. Add orasys to **Members:**
-    5. Click **OK**
+    1. Select **Local Users and Groups** in  the left pane and click **Groups**
+    1. Select **Administrators** and right-click and click **Add to Group...**
+    1. Add orasys to **Members:**
+    1. Click **OK**
     
 ### Install Oracle Database
 
 ##### On Primary and Secondary servers
 1. Logon as orasys
-2. Start **setup.exe** of Oracle Database
-3. Configure Security Updates:
+1. **(In case of 19c)** Create the folder for **%ORACLE_HOME%**
+    - e.g. C:\app\oradb\product\19.0.0\dbhome_1
+1. **(In case of 19c)** Unzip Oracle installation file to the **%ORACLE_HOME%**
+1. Start **setup.exe** of Oracle Database
+1. **(In case of 12c)** Configure Security Updates:
     - Uncheck **I wish to receive security updates via My Oracle Support.**
-4. Installation Option:
-    - Select **Install database software only**
-5. Database Installation Options:
+1. Installation Option:
+    - **(In case of 12c)** Select **Install database software only**
+    - **(In case of 19c)** Select **Set Up Software Only**
+1. Database Installation Options:
     - Select **Single instance database instalation**
-6. Database Edition:
+1. Database Edition:
     - Select **Enterprise Edition (6.0GB)**
-7. Oracle Home User:
+1. Oracle Home User:
     - Select **Use Existing Windows User**
     - Input Oracle home user name
         - e.g. oradb
-8. Installation Location:
+1. Installation Location:
     - Input **Oracle base** and **Software location** in a local partition
       - e.g. Oracle base -> C:\app\oradb
-      - e.g. Software location -> C:\app\oradb\product\12.2.0\dbhome_1
+      - e.g. Software location -> C:\app\oradb\product\19.0.0\dbhome_1
     - In this document, **%ORACLE_HOME%** means **Software location**
-9. Prerequisite Checks:
+1. Prerequisite Checks:
     - Wait for checking
-10. Summary:
+1. Summary:
     - Click **Install**
 
 ### Create Database
@@ -184,6 +204,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
 ##### On Primary Server
 1. Logon as orasys
 2. Start **dbca.bat** with Administrator authority
+    - Right click the bat file and click **Run as administrator**
     - The path is `%ORACLE_HOME%\bin\dbca.bat`
 3. Database Operation:
     - Select **Create a database**
@@ -202,7 +223,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
 7. Storage Option:
     - Select **Use following for the database storage attributes**
     - Select **File System** as **Database files storage type**
-    - Input a location in the data partition as **Database files location**
+    - Input a location in the *data partition* as **Database files location**
       - e.g. Database files location -> F:\oradata
 8. Fast Recovery Option:
     - Check **Specify Fast Recovery Area**
@@ -215,7 +236,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
     - Click **Next**
 10. Database Options:
     - Check all components
-    - Uncheck all **Include in PDBs** checkboxes
+    - If you need, check **Include in PDBs** checkboxes
 11. Data Vault Option:
     - Click **Next**
 12. Configuration Options:
@@ -230,7 +251,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
     - Check **Create database**
 16. Summary:
     - Click **Finish**
-17. Run Command Prompt as administrator
+17. After creating the database, run Command Prompt as administrator
     - Right click Command Prompt icon and select **Run as administrator**
 18. Change database startmode
 
@@ -244,7 +265,8 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
     Note: The database is started automatically after starting OracleServiceSID1
 
 ##### On Secondary server
-19. Logon as orasys
+19. Logon as orasys, and run Command Prompt as administrator
+    - Right click Command Prompt icon and select **Run as administrator**
 
 20. Create database service
 
@@ -257,7 +279,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
     
 21. Create a password file
 
-    The password is recommended to be consistent with the password defined in **14. User Crredentials:**
+    The password is recommended to be same with the SYS password defined in **14. User Crredentials:**
     
     - If Oracle Database version is earlier than 12.2
     
@@ -265,7 +287,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
     > orapwd file=%ORACLE_HOME%\database\PWD<SID name>.ora password=<password>
     
     e.g.
-    > orapwd file=C:\app\oradb\product\12.2.0\dbhome_1\database\PWDSID1.ora password=oracle
+    > orapwd file=C:\app\oradb\product\12.0.0\dbhome_1\database\PWDSID1.ora password=oracle
     ```
     
     - If Oracle Database version is 12.2 or later
@@ -274,7 +296,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
     > orapwd file=%ORACLE_HOME%\database\PWD<SID name>.ora password=<password> format=12
     
     e.g.
-    > orapwd file=C:\app\oradb\product\12.2.0\dbhome_1\database\PWDSID1.ora password=oracle format=12
+    > orapwd file=C:\app\oradb\product\19.0.0\dbhome_1\database\PWDSID1.ora password=oracle format=12
     ```
     
 ### Create listener
@@ -344,7 +366,7 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
 2. Copy the PFILE to a data partition
     ```bat
     e.g.
-    > copy C:\app\oradb\product\12.2.0\dbhome_1\database\INITSID1.ORA F:
+    > copy C:\app\oradb\product\19.0.0\dbhome_1\database\INITSID1.ORA F:
     ```
     
 ##### On Primary and Secondary server
@@ -385,6 +407,12 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
         > icacls F: /t /c /grant orasys:F
         > icacls F: /t /c /grant oradb:F
         ```
+4. Stop OracleService
+    - Open Services
+        ```bat
+        > services.msc
+        ```
+    - Stop OracleServiceSID1
     
 ### Configure a client
 
@@ -478,57 +506,43 @@ This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUST
 ##### On Secondary server
 12. Create a listener service in the same way as a primary server, but **please skip the step 6**.
 
-### Create resources for database on Builder
+### Create resources for database on Cluster WebUI
 
 ##### On Primary server
-1. Confirm that an OracleService and a listerner service are stopped on both servers.
+1. Reboot both servers on Cluster WebUI.
 
-2. Create a service resource for database
+1. After rebooting, confirm that an OracleService and a listerner service are stopped on both servers.
+
+1. Create a service resource for database
     - Follow the default dependency
     - **Service Name** is OracleServiceSID1
     
-3. Create a service resource for listener
+1. Create a service resource for listener
     - **Dependent Resources** is a service resource for database
     - **Service Name** is OracleOraDB\<version\>Home1TNSListener
     - **Retry Count at Deactivation Failure** should be larger than 0 to avoid a known Oracle Listener stop issue.
     
-4. Apply the configuration file
-
 ### Create monitor resources on Builder
 
 ##### On Primary server
-1. Create an Oracle monitor resource for a OracleService
-    - Select a service resource for database as **Target Resource** of **Monitor Timing**
-    - Select **Instance Monitor** as **Monitor Type**
-    - Input a database name as **Connect String**
-        - e.g. Connect String -> sid1
-    - Input **system** as **User Name**
-    - Input password of **system**
-    - Select **DEFAULT** as **Authority Method**
-    - Input **ORACLE_HOME**
-        - e.g. ORACLE_HOME -> C:\app\oradb\product\12.2.0\dbhome_1
-    - Check **Set error during Oracle initialization or shutdown**
-    - Select a failover group as **Recovery Target**
-        - e.g. Recovery Target -> failover1
-
-2. Create an Oracle monitor resource for a listener service
+1. Create an Oracle monitor resource
     - Select a service resource for listener as **Target Resource** of **Monitor Timing**
-    - Select **Listener Monitor** as **Monitor Type**
-    - Input a PDB name as **Connect String**
-        - e.g. Connect String -> sid1pdb
+    - Select **Listener and Instance Monitor** as **Monitor Type**
+    - Input a PDB name as **Connect Command**
+        - e.g. Connect Command -> sid1pdb
     - Input **system** as **User Name**
     - Input password of **system**
     - Select **DEFAULT** as **Authority Method**
     - Input **ORACLE_HOME**
-        - e.g. ORACLE_HOME -> C:\app\oradb\product\12.2.0\dbhome_1
+        - e.g. ORACLE_HOME -> C:\app\oradb\product\19.0.0\dbhome_1
     - Check **Set error during Oracle initialization or shutdown**
     - Select a failover group as **Recovery Target**
         - e.g. Recovery Target -> failover1
 
-3. Apply the configuration file
-4. Start a failover group
+1. Apply the configuration file
+1. Start a failover group
 
-### Change PASSWORD_LIFE_TIME unlimited
+### Change the password expiration date
 
 ##### On Primary server
 The default password expiration date for user authentication is 180 days. If you use Oracle monitor resource, you should change the password regularly or change the password expiration date to an indefinite time.
@@ -538,10 +552,22 @@ The default password expiration date for user authentication is 180 days. If you
 SQL> alter profile DEFAULT limit PASSWORD_LIFE_TIME unlimited;
 SQL> alter profile ORA_STIG_PROFILE limit PASSWORD_LIFE_TIME unlimited;
 ```
+##### On Primary and Secondary server
+The default password expiration data for Windows OS user is 41 days. You should change the password regularly or change the password expiration date to an indefinite time.
+- How to disable the password expiration
+    - Logon to **Administrator** account
+    - Open **Computer Management**
+    - Click **Local Users and Groups**
+    - Open **Users**
+    - Open the property of **orasys**
+    - In **General** tab, check **Password never expires**
+    - Do the same with **oradb**
 
 ----
-2018.09.28	rev.1.2	Ogata Yosuke <y-ogata@hg.jp.nec.com>	1st issue
+2018.09.28	rev.1.2	Ogata Yosuke <ys-ogata@nec.com>	1st issue
 
-2018.09.28	rev.1.3	Miyamoto Kazuyuki <k-miyamoto@pu.jp.nec.com>	Minor update
+2018.09.28	rev.1.3	Miyamoto Kazuyuki <kazuyuki@nec.com> Minor update
 
-2020.09.02  rev.1.4	Ogata Yosuke <y-ogata@hg.jp.nec.com>	Oracle Database 19c and ECX 4.x is covered
+2020.09.02  rev.1.4	Ogata Yosuke <ys-ogata@nec.com>	Oracle Database 19c and ECX 4.x is covered
+
+2021.07.07  rev.1.5	Ogata Yosuke <ys-ogata@nec.com>	Minor update
