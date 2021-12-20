@@ -1,8 +1,8 @@
-# Oracle Database 12c Quick Start Guide for EXPRESSCLUSTER X (Linux Data mirror)
+# Oracle Database 19c / 12c Quick Start Guide for EXPRESSCLUSTER X (Linux Data mirror)
 
 ## About This Guide
 
-This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X using mirror disks with 2 nodes. The guide assumes its readers to have EXPRESSCLUSTER X basic knowledge and setup skills.
+This guide provides how to integrate Oracle Database 19c / 12c with EXPRESSCLUSTER X using mirror disks with 2 nodes. The guide assumes its readers to have EXPRESSCLUSTER X basic knowledge and setup skills.
 
 ## System Overview
 
@@ -11,51 +11,61 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
   - IP rechable each other
   - Having mirror disk
     - At least 2 partitions are required on each mirror disk.
-      - Cluster Partition having volume size of 17MB (for X3.3) or 1024MB (for X4.0).
+      - Cluster Partition having volume size of 17MB (for X3.3) or 1024MB (for X4.x).
       - Data Partition having volume size depends on Database sizing.
 - Oracle Database are installed on local partition on each server.
 - Database files are created on Data Partition.
 
 
 ### System Configuration
-- CentOS Linux release 7.5.1804 (Core)
-  - Kernel version 3.10.0-862.el7.x86_64
-- Oracle Database 12c R2
-  - 12c and 12c R1 are not confirmed. Please let the authors (see last part of this guide) know if you have confirmed the procedure in this guide can be applied to other than 12c R2.
-- EXPRESSCLUSTER X 3.3 / X4.0 for Linux
+- CentOS Linux
+  - Tested for 19c
+    - release 7.8.2003 (Core)
+    - Kernel version 3.10.0-1127.el7.x86_64
+  - Tested for 12c R2
+    - release 7.5.1804 (Core)
+    - Kernel version 3.10.0-862.el7.x86_64
+- Oracle Database 19c / 12c R2
+- EXPRESSCLUSTER
+    - Tested for 19c    
+        - X 4.3 for Linux
+    - Tested for 12c R2
+        - X 3.3 for Linux
 
-		Sample configuration
+```
+Sample configuration
 		
-		<LAN>
-		 |
-		 |  +------------------------------+
-		 +--| Primary Server               |
-		 |  | - CentOS 7.5                 |
-		 |  | - Oracle Database 12c R2     |
-		 |  | - EXPRESSCLUSTER X 3.3       |
-		 |  |                              |
-		 |  | RAM              : 4GB       |
-		 |  | Cluster Partition: 17MB      |
-		 |  |                    /dev/sdb1 |
-		 |  | Data Partition   : 40GB      |
-		 |  |                    /dev/sdb2 |
-		 |  +-----------+------------------+
-		 |              |
-		 |              | Mirroring
-		 |              |
-		 |  +-----------+------------------+
-		 +--| Secondary Server             |
-		 |  | - CentOS 7.5                 |
-		 |  | - Oracle DB 12c R2           |
-		 |  | - EXPRESSCLUSTER X 3.3       |
-		 |  |                              |
-		 |  | RAM              : 4GB       |
-		 |  | Cluster Partition: 17MB      |
-		 |  |                    /dev/sdb1 |
-		 |  | Data Partition   : 40GB      |
-		 |  |                    /dev/sdb2 |
-		 |  +------------------------------+
-		 |
+<LAN>
+ |
+ |  +------------------------------+
+ +--| Primary Server               |
+ |  | - CentOS 7.8                 |
+ |  | - Oracle Database 19c        |
+ |  | - EXPRESSCLUSTER X 4.3       |
+ |  |                              |
+ |  | RAM              : 8GB       |
+ |  | Cluster Partition: 1024MB    |
+ |  |                    /dev/sdb1 |
+ |  | Data Partition   : 40GB      |
+ |  |                    /dev/sdb2 |
+ |  +-----------+------------------+
+ |              |
+ |              | Mirroring
+ |              |
+ |  +-----------+------------------+
+ +--| Secondary Server             |
+ |  | - CentOS 7.8                 |
+ |  | - Oracle Database 19c        |
+ |  | - EXPRESSCLUSTER X 4.3       |
+ |  |                              |
+ |  | RAM              : 8GB       |
+ |  | Cluster Partition: 1024MB    |
+ |  |                    /dev/sdb1 |
+ |  | Data Partition   : 40GB      |
+ |  |                    /dev/sdb2 |
+ |  +------------------------------+
+ |
+```
 
 #### Cluster configuration
 - Network Partition Resolution resource (PING method) : `pingnp1`
@@ -80,7 +90,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 - Database name          : sid1
 - PDB name               : sid1pdb
 - Oracle base            : `/u01/app/oracle`
-- Oracle home            : `/u01/app/oracle/product/12.2.0/dbhome_1`
+- Oracle home            : `/u01/app/oracle/product/19.0.0/dbhome_1`
 - Database files location: `/oradata/sid1`
 - Fast recovery area     : `/oradata/sid1/fast_recovery_area/sid1`
 
@@ -103,12 +113,17 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     # groupadd -g 1006 kmdba
     ```
     
+    In case of Oracle DB 19c, create one more user.
+    ```bat
+    # groupadd -g 1007 racdba
+    ```
+
 3. Create an administrative user for Oracle Database with useradd command
 
     ```bat
     e.g.
     
-    # useradd -u 1100 -g oinstall -G dba,oper,backupdba,dgdba,kmdba oracle
+    # useradd -u 1100 -g oinstall -G dba,oper,backupdba,dgdba,kmdba, racdba oracle
     ```
     
 4. Create a directory for Oracle Database
@@ -331,6 +346,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
         failover1
         - fip1: floating IP resource
         - md1 : mirror disk resource
+            e.g. mount point: */oradata/sid1*
         
 5. Start group on Primary server
 
@@ -339,45 +355,61 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
 ##### On Primary and Secondary servers
 1. Logon as oracle
-2. Start **runInstaller** of Oracle Database
-3. Configure Security Updates:
+1. In case of 19c, you need to unzip Oracle zip file as follows.
+    ```bat
+    $ mkdir -p /u01/app/oracle/product/19.0.0/dbhome_1
+    $ unzip LINUX.X64_193000_db_home.zip -d /u01/app/oracle/product/19.0.0/dbhome_1/
+    ```
+1. Start **runInstaller** of Oracle Database
+    ```bat
+    $ cd /u01/app/oracle/product/19.0.0/dbhome_1
+    $ ./runInstaller
+    ```
+1. Configure Security Updates **(12c R2)**:
     - Uncheck **I wish to receive security updates via My Oracle Support.**
-4. Installation Option:
+1. Installation Option **(12c R2)**:
     - Select **Install database software only**
-5. Database Installation Options:
+1. Configuration Option **(19c)**:
+    - Select **Set Up Software Only**
+1. Database Installation Options:
     - Select **Single instance database instalation**
-6. Database Edition:
-    - Select **Enterprise Edition (7.5GB)**
-7. Installation Location:
+1. Database Edition:
+    - Select **Enterprise Edition**
+1. Installation Location:
     - Input **Oracle base** and **Software location** in a local partition
       - e.g. Oracle base -> `/u01/app/oracle`
-      - e.g. Software location -> `/u01/app/oracle/product/12.2.0/dbhome_1`
-8. Create Inventory:
+      - e.g. Software location -> `/u01/app/oracle/product/19.0.0/dbhome_1`
+1. Create Inventory:
     - Input **Inventory Directory**
       - e.g. Inventory Directory -> `/u01/app/oraInventory`
     - Select **oinstall** as **oraInventory Group Name**
-9. Operating System Groups:
+1. Operating System Groups:
     - Select **dba** as **Database Administrator (OSDBA) group**
     - Select **oper** as **Database Operator (OSOPER) group (Optional)**
     - Select **backupdba** as **Database Backup and Recovery (OSBACKUPDBA) group**
     - Select **dgdba** as **Data Guard administrative (OSDGDBA) group**
     - Select **kmdba** as **Encryption Key Management administrative (OSKMDBA) group**
-    - Select **dba** as **Real Application Cluster administrative (OSRACDBA) group**
-10. Prerequisite Checks:
-    - Wait for checking
-11. Summary:
+    - (In case of 19c) Select **racdba** as **Real Application Cluster administrative (OSRACDBA) group**
+1. Root script execution configuration **(19c)**:
+    - Check **Automatically run configuration scripts**
+    - Input **Password** in **Use "root" user credential**
+1. Prerequisite Checks:
+    - If verification is failed, install the required packages by yum command on root user.
+1. Summary:
     - Click **Install**
-12. Install Product:
+1. Install Product:
     - Wait for installation
-13. Execute Configuration Scripts
+1. Execute Configuration Scripts
     - Execute the scripts according to messages
-14. Set environmental values
+1. Finish:
+    - Click **Close**
+1. Set environmental values
     
     ```bat
-    $ vi $HOME/.bash_profile
+    $ vi ~/.bash_profile
     
     export ORACLE_BASE=/u01/app/oracle
-    export ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1
+    export ORACLE_HOME=/u01/app/oracle/product/19.0.0/dbhome_1
     export PATH=$ORACLE_HOME/bin:$PATH
     export NLS_LANG=American_America.UTF8
     export ORACLE_SID=sid1
@@ -389,59 +421,62 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
 ##### On Primary Server
 1. Logon as oracle
-2. Start **dbca**
+1. Start **dbca**
     
     ```bat
-    $ dbca
+    $ cd /u01/app/oracle/product/19.0.0/dbhome_1/bin
+    $ ./dbca
     ```
     
-3. Database Operation:
+1. Database Operation:
     - Select **Create a database**
-4. Creation Mode:
+1. Creation Mode:
     - Select **Advanced configuration**
-5. Deployment Type:
+1. Deployment Type:
     - Select **Oracle Single Instance database** as **Database type**
     - Select **Custom Database**
-6. Database Identification:
+1. Database Identification:
     - e.g. Global database name -> sid1
     - e.g. SID -> sid1
     - Check **Create as Container database**
     - Check **Use Local Undo tablespace for PDBs**
     - Select **Create a Container database with one or more PDBs**
     - e.g. PDB name -> sid1pdb
-7. Storage Option:
+1. Storage Option:
     - Select **Use following for the database storage attributes**
     - Select **File System** as **Database files storage type**
     - Input a location in the Data Partition as **Database files location**
       - e.g. Database files location -> `/oradata/sid1`
-8. Fast Recovery Option:
+1. Fast Recovery Option:
     - Check **Specify Fast Recovery Area**
     - Select **File System** as **Recovery files storage type**
     - Input a location in a Data Partition as **Fast Recovery Area**
       - e.g. Fast Recovery Area -> `/oradata/sid1/fast_recovery_area
       - e.g. Fast Recovery Area size -> 17271MB
     - Check **Enable archiving**
-9. Network Configuration:
+1. Network Configuration:
     - Click **Next**
-10. Database Options:
+1. Database Options:
     - Check all components
     - Uncheck all **Include in PDBs** checkboxes
-11. Data Vault Option:
+1. Data Vault Option:
     - Click **Next**
-12. Configuration Options:
+1. Configuration Options:
     - Click **Next**
         - Block size and Character sets cannot be changed after creating database
             - If you want to change Block size or Character sets, you must reconstruct database
-13. Management Options:
+1. Management Options:
     - Uncheck **Configure Enterprise Manager (EM) database express**
-14. User Crredentials:
+1. User Crredentials:
     - Select **Use different administrative passwords**
     - Input **Password** and **Confirm password**
-15. Creation Option:
+1. Creation Option:
     - Check **Create database**
-16. Summary:
+1. Summary:
     - Click **Finish**
-17. Copy parameter files to a secondary server
+1. Finish:
+    - Click **Close**
+1. Copy parameter files to a secondary server
     
     ```bat
     e.g.
@@ -455,8 +490,8 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     ```
     
 ##### On Primary and Secondary servers
-17. Login as root
-18. Change /dev/shm size
+1. Login as root
+1. Change /dev/shm size
     
     ```bat
     # mount -t tmpfs shmfs -o size=7g /dev/shm
@@ -472,21 +507,21 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 
 ##### On Primary and Secondary servers
 1. Login as oracle
-2. Create listener.ora
+1. Create listener.ora
 
     Sample of listener.ora
     
-    (%ORACLE_HOME%\network\admin\listener.ora)
+    ($ORACLE_HOME/network/admin/listener.ora)
     ```bat
     LISTENER =
     	(ADDRESS = (PROTOCOL = TCP) (HOST = <floating IP>) (PORT = 1521))
     ```
     
-3. Create tnsnames.ora
+1. Create tnsnames.ora
 
     Sample of tnsnames.ora
     
-    (%ORACLE_HOME%\network\admin\tnsnames.ora)
+    ($ORACLE_HOME/network/admin/tnsnames.ora)
     ```bat
     listener =
     	(DESCRIPTION =
@@ -517,12 +552,17 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     ```
     
 ##### On Primary server
-4. Set LOCAL_LISTENER
+1. Start an instance and set LOCAL_LISTENER
 
     ```bat
-    > sqlplus / as sysdba
+    $ sqlplus / as sysdba
     SQL> startup
     SQL> alter system set LOCAL_LISTENER='listener';
+    ```
+1. Stop an instance
+    ```bat
+    SQL> shutdown immediate
+    SQL> exit
     ```
     
 ### Create a parameter file in a Data Partition on the mirror disk
@@ -541,7 +581,23 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     
     spfile=/oradata/sid1/spfilesid1.ora
     ```
+
+### Create audit folders **(Only 19c)**
+
+##### On Secondary server
+1. Create audit folders
+
+    ```bat
+    $ mkdir $ORACLE_BASE/audit
+    $ mkdir $ORACLE_BASE/admin/sid1/adump
+    ```
+2. Change persmissions
     
+    ```bat
+    $ chmod 750 $ORACLE_BASE/audit/
+    $ chmod 750 $ORACLE_BASE/admin/sid1/adump
+    ```
+
 ### Create scripts for startup and shutdown database
 
 ##### On Primary server
@@ -595,7 +651,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 				exit 1
 			fi
 
-			su -l oracle -c 'export ORACLE_SID=sid1pdb;sqlplus /nolog @/oradata/sid1/startup.sql'
+			su -l oracle -c 'export ORACLE_SID=sid1;sqlplus /nolog @/oradata/sid1/startup.sql'
 			if [ $? -ne 0 ]
 			then
 				echo "db start error"
@@ -625,7 +681,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 				exit 1
 			fi
 
-			su -l oracle -c 'export ORACLE_SID=sid1pdb;sqlplus /nolog @/oradata/sid1/startup.sql'
+			su -l oracle -c 'export ORACLE_SID=sid1;sqlplus /nolog @/oradata/sid1/startup.sql'
 			if [ $? -ne 0 ]
 			then
 				echo "db start error"
@@ -669,7 +725,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 		if [ "$CLP_DISK" = "SUCCESS" ]
 		then
 			echo "NORMAL1"
-			su -l oracle -c 'export ORACLE_SID=sid1pdb;sqlplus /nolog @/oradata/sid1/shutdown.sql'
+			su -l oracle -c 'export ORACLE_SID=sid1;sqlplus /nolog @/oradata/sid1/shutdown.sql'
 			if [ $? -ne 0 ]
 			then
 				echo "db shutdown error"
@@ -698,7 +754,7 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 		if [ "$CLP_DISK" = "SUCCESS" ]
 		then
 			echo "FAILOVER1"
-			su -l oracle -c 'export ORACLE_SID=sid1pdb;sqlplus /nolog @/oradata/sid1/shutdown.sql'
+			su -l oracle -c 'export ORACLE_SID=sid1;sqlplus /nolog @/oradata/sid1/shutdown.sql'
 			if [ $? -ne 0 ]
 			then
 				echo "db shutdown error"
@@ -751,12 +807,13 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
     - Input password of **system**
     - Select **DEFAULT** as **Authority Method**
     - Input **ORACLE_HOME**
-        - e.g. ORACLE_HOME -> `/u01/app/oracle/product/12.2.0/dbhome_1/`
+        - e.g. ORACLE_HOME -> `/u01/app/oracle/product/19.0.0/dbhome_1/`
     - Select **AMERICAN_AMERICA.UTF8** as **Character Set**
     - Input **Library Path**
-        - e.g. Library Path -> `/u01/app/oracle/product/12.2.0/dbhome_1/lib/libclntsh.so.12.1`
+        - e.g. Library Path -> `/u01/app/oracle/product/19.0.0/dbhome_1/lib/libclntsh.so.12.1`
     - Select a failover group as **Recovery Target**
         - e.g. Recovery Target -> failover1
+    - Check **Set error during Oracle initialization or shutdown**
 
 3. Apply the configuration file
 4. Start a failover group
@@ -797,8 +854,8 @@ This guide provides how to integrate Oracle Database 12c with EXPRESSCLUSTER X u
 ##### On Primary and Secondary server and Client
 
 ```bat
-> sqlplus system/<password>@SID1
-> sqlplus system/<password>@SID1PDB
+$ sqlplus system/<password>@SID1
+$ sqlplus system/<password>@SID1PDB
 ```
     
 Note: Normally **PDB**(SID1PDB) is used as database. **CDB**(SID1) is used to manage multiple PDBs. 
@@ -809,7 +866,7 @@ Note: Normally **PDB**(SID1PDB) is used as database. **CDB**(SID1) is used to ma
 The default password expiration date for user authentication is 180 days. If you use Oracle monitor resource, you should change the password regularly or change the password expiration date to an indefinite time.
 
 ```bat
-> sqlplus system/<password>@SID1
+$ sqlplus system/<password>@SID1
 SQL> alter profile DEFAULT limit PASSWORD_LIFE_TIME unlimited;
 SQL> alter profile ORA_STIG_PROFILE limit PASSWORD_LIFE_TIME unlimited;
 ```
@@ -841,3 +898,4 @@ SQL> alter profile ORA_STIG_PROFILE limit PASSWORD_LIFE_TIME unlimited;
 
 ----
 2019.11.13	Ogata Yosuke <y-ogata@hg.jp.nec.com>	1st issue
+2021.12.20  Ogata Yosuke <ys-ogata@nec.com>         Update for 19c
