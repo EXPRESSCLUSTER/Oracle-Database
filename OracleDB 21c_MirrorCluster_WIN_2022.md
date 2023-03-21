@@ -1,4 +1,4 @@
-# Oracle Database 21c Quick Start Guide for EXPRESSCLUSTER X
+# Oracle Database 21c Quick Start Guide for EXPRESSCLUSTER X 
 
 ## About This Guide
 
@@ -58,7 +58,7 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
 		 |  +--------------------------+
 		 |
 
-#### Cluster configuration
+#### Cluster Configuration
 - Network Partition Resolution resource (PING method) : `pingnp1`
 
 - failover Group: `Oraclefailover`
@@ -77,7 +77,7 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
 	- servicew2         : service monitor resource for listener1_service
 	- userw             : user-mode monitor resource
 
-#### Database configuration
+#### Database Configuration
 
 - SID name               : orcl
 - Database name          : orcl
@@ -87,11 +87,11 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
 - Database Files location: `D:\oradata`
 - fast recovery area     : `D:\fast_recovery_area`
 
-## System setup
+## System Setup
 
 ### Prerequisite
 
-##### On Primary and Secondary servers
+##### On Primary and Secondary Servers
 1. Change a virtual memory (swap) size
     1. Open Control Panel
     1. Go to **System and Security** -> **System**
@@ -107,13 +107,13 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
 
 ### Basic cluster setup
 
-##### On Primary and Secondary servers
+##### On Primary and Secondary Servers
 1. Install EXPRESSCLUSTER X (ECX)
 2. Register ECX licenses
     - EXPRESSCLUSTER X 5.0.2 for Windows
     - EXPRESSCLUSTER X Replicator 5.0.2 for Windows
 
-##### On Primary server
+##### On Primary Server
 3. Create a cluster and a failover group
     - Network partition: 
     
@@ -129,7 +129,7 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
 
 ### Create OS user
 
-##### On Primary and Secondary servers
+##### On Primary and Secondary Servers
 1. Create Oracle install user
 
     1. Open **Computer Management**
@@ -165,7 +165,7 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
     
 ### Install Oracle Database
 
-##### On Primary and Secondary servers
+##### On Primary and Secondary Servers
 1. Logon as orasys
 1. **(In case of 21c)** Create the folder for **%ORACLE_HOME%**
     - e.g. C:\app\oradb\product\21c\dbhome_1
@@ -259,7 +259,7 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
     
     Note: The database is started automatically after starting OracleServiceorcl
 
-##### On Secondary server
+##### On Secondary Server
 19. Logon as orasys, and run Command Prompt as administrator
     - Right click Command Prompt icon and select **Run as administrator**
 
@@ -296,7 +296,7 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
     
 ### Create listener
 
-##### On Primary and Secondary servers
+##### On Primary and Secondary Servers
 1. Create listener.ora
 
     ($ORACLE_HOME/bin/netca)
@@ -353,9 +353,9 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
     	)
     ```
 
-### Oracle Database configuration on Mirror Disk
+### Oracle Database Configuration on Mirror Disk
 
-##### On Primary server
+##### On Primary Server
 
 
 Now create directory in Data Mirror drive.
@@ -682,9 +682,9 @@ SQL> quit;
 
 32. Move failover from **Primary server** to **Secondary Server**
 
-##### On Secondary server
+##### On Secondary Server
 
-### Change permissions of Files on the mirror disk
+### Change permissions of Files on the Mirror Disk
 
 1. Add fullcontrol permissions to access all Files and Folders in a data partition to orasys and oradb
 
@@ -751,7 +751,7 @@ SQL>select * From test1;
 ```
 
 
-### Configure a client
+### Configure a Client
 
 ##### On Client
 1. Create tnsnames.ora
@@ -783,9 +783,9 @@ SQL>select * From test1;
     	)
     ```
 
-### Create listener service
+### Create Listener Service
 
-##### On Primary server
+##### On Primary Server
 1. Move a failover group to a primary server and start OracleService
 
 2. Set environment variables
@@ -840,12 +840,12 @@ SQL>select * From test1;
     
 11. Move a failover group to another server
 
-##### On Secondary server
+##### On Secondary Server
 12. Create a listener service in the same way as a primary server, but **please skip the step 6**.
 
-### Create resources for database on Cluster WebUI
+### Create Resources for Database on Cluster WebUI
 
-##### On Primary server
+##### On Primary Server
 1. Reboot both servers on Cluster WebUI.
 
 1. after rebooting, confirm that an OracleService and a listerner service are stopped on both servers.
@@ -859,9 +859,9 @@ SQL>select * From test1;
     - **Service Name** is OracleOraDB21Home1TNSListener
     - **Retry Count at Deactivation failure** should be larger than 0 to avoid a known Oracle Listener stop issue.
     
-### Create monitor resources on Webui
+### Create Monitor Resources on Webui
 
-##### On Primary server
+##### On Primary Server
 1. Create an Oracle monitor resource
     - Select a service resource for listener as **Target Resource** of **Monitor Timing**
     - Select **Listener and Instance Monitor** as **Monitor Type**
@@ -879,9 +879,9 @@ SQL>select * From test1;
 1. Apply the configuration file
 1. Start a failover group
 
-### Change the password expiration date
+### Change the Password Expiration Date
 
-##### On Primary server
+##### On Primary Server
 The default password expiration date for user authentication is 180 days. IF you use Oracle monitor resource, you should change the password regularly or change the password expiration date to an indefinite time.
 
 ```bat
@@ -889,7 +889,7 @@ The default password expiration date for user authentication is 180 days. IF you
 SQL> alter profile Default limit PASSWORD_LIFE_TIME unlimited;
 SQL> alter profile ORA_STIG_PROfile limit PASSWORD_LIFE_TIME unlimited;
 ```
-##### On Primary and Secondary server
+##### On Primary and Secondary Server
 The default password expiration data for Windows OS user is 41 days. You should change the password regularly or change the password expiration date to an indefinite time.
 - How to disable the password expiration
     - Logon to **Administrator** account
