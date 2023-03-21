@@ -127,6 +127,7 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
         
 4. Start group on Primary server
 
+
 ### Create OS user
 
 ##### On Primary and Secondary servers
