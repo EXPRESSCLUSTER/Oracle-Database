@@ -1,4 +1,4 @@
-# Oracle Database 21c Quick Start Guide for EXPRESSCLUSTER X (Windows data mirror)
+# Oracle Database 21c Quick Start Guide for EXPRESSCLUSTER X
 
 ## About This Guide
 
