@@ -171,10 +171,10 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
     - e.g. C:\app\oradb\product\21c\dbhome_1
 1. **(In case of 21c)** Unzip Oracle installation file to the **%ORACLE_HOME%**
 1. Start **setup.exe** of Oracle Database
-1. **(In case of 12c)** Configure Security Updates:
+1. **(In case of 21c)** Configure Security Updates:
     - Uncheck **I wish to receive security updates via My Oracle Support.**
 1. Installation Option:
-    - **(In case of 12c)** Select **Install database software only**
+    - **(In case of 21c)** Select **Install database software only**
     - **(In case of 21c)** Select **Set Up software Only**
 1. Database Installation Options:
     - Select **Single instance database installation**
@@ -291,7 +291,7 @@ This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X (
     > orapwd file=%ORACLE_HOME%\database\PWD<SID name>.ora password=<password> format=12
     
     e.g.
-    > orapwd file=C:\app\oradb\product\21c\dbhome_1\database\PWforcl.ora password=oracle format=12
+    > orapwd file=C:\app\oradb\database\PWforcl.ora password=oracle format=12
     ```
     
 ### Create listener
@@ -434,9 +434,11 @@ Database mounted.
 SQL> alter database rename file <original file path> to <new file path>;
 ```
 
-Example: alter database rename file 'C:\app\oradata\orcl\system01.dbf’  to 'D:\oradata\orcl\system01.dbf’;
+Example: 
 
 ```bat
+alter database rename file 'C:\app\oradata\orcl\system01.dbf’  to 'D:\oradata\orcl\system01.dbf’;
+
 alter database rename file 'C:\app\oradata\orcl\sysaux01.dbf’  to 'D:\oradata\orcl\sysaux01.dbf’;
 
 alter database rename file 'C:\app\oradata\orcl\example01.dbf’  to 'D:\oradata\orcl\example01.dbf’;
@@ -485,7 +487,11 @@ C:\ORADATA\ORCL\ORCLPDB1\USERS01.DBF
 SQL> create temporary tablespace temp2 tempfile '<mirrored disk Oracle instance data directory>\temp02.dbF' <options>;
 ```
 
-Example: SQL> create temporary tablespace temp2 tempfile 'D:\oradata\orcl\temp02.dbF' size 50M extent management local;
+Example:
+
+```bat
+SQL> create temporary tablespace temp2 tempfile 'D:\oradata\orcl\temp02.dbF' size 50M extent management local;
+```
 
 The command options may be adjusted to suit one’s needs:
 
@@ -562,7 +568,7 @@ SQL> alter database rename file <original file path> to <new file path>;
 ```
 Example: alter database rename file 
 
-'C:\app\oradata\orcl\redo01.log' to 'D:\oradata\orcl\redo01.log';
+'C:\oradata\orcl\redo01.log' to 'D:\oradata\orcl\redo01.log';
 
 ```bat
 alter database rename file 'C:\oradata\ORCL\redo02.log' to 'D:\oradata\orcl\redo02.log';
@@ -604,7 +610,7 @@ The output would be as Follows:
 
 The sample Pfile may also want to be reviewed which is automatically created by the Oracle DB installer to see If there is any parameter setting that may want to be added to the SPfile that was created:
 
- The sample Pfile can typical be found (example:C:\app\oradb\product\21c\dbhome_1\database)
+ The sample Pfile can typical be found (example:C:\app\oradb\database\)
 
 22. Copy control (*.CTL) Files From default directories (example: C:\oradata\orcl and C:\fast recovery area\ORCL) to Oracle instance data directory on the mirrored disk (example: D:\oradata\orcl ):
 
@@ -664,15 +670,46 @@ The command output should show new location of moved database Files.
 ```bat
 SQL> select *  From v$logfile;
 ```
+The output is as Follows:
+
+```bat
+GROUP# STATUS  TYPE
+---------- ------- -------
+MEMBER
+--------------------------------------------------------------------------------
+IS_     CON_ID
+--- ----------
+         1         ONLINE
+D:\ORADATA\ORCL\REDO01.LOG
+NO           0          2         ONLINE
+D:\ORADATA\ORCL\REDO02.LOG
+NO           0     GROUP# STATUS  TYPE
+---------- ------- -------
+MEMBER
+--------------------------------------------------------------------------------
+IS_     CON_ID
+--- ----------          3         ONLINE
+D:\ORADATA\ORCL\REDO03.LOG
+NO           0
+```
 
 29. Create table in oracle
 ```bat
 SQL>   create table test as select * From dual;
 ```
+The output is as Follows: **Table created.**
 
 30. checking created tables
 ```bat
 SQL>select * From test;
+```
+
+The output is as Follows:
+
+```bat
+D
+-
+X
 ```
 
 31. Quit SQLPLus
@@ -718,6 +755,14 @@ SQL> Startup;
 ```bat
 SQL> show parameter control_Files;
 ```
+The output is as Follows:
+
+```bat
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+control_files                        string      D:\ORADATA\ORCL\CONTROL01.CTL,
+                                                  D:\ORADATA\ORCL\CONTROL02.CTL
+```
 
 5. Verify new database file locations:
 
@@ -730,10 +775,39 @@ The command output should show new location of moved database Files
 ```bat
 SQL> select *  From v$logfile;
 ```
+The output is as Follows:
+
+```bat
+ GROUP# STATUS  TYPE
+---------- ------- -------
+MEMBER
+--------------------------------------------------------------------------------
+IS_     CON_ID
+--- ----------
+         1         ONLINE
+D:\ORADATA\ORCL\REDO01.LOG
+NO           0          2         ONLINE
+D:\ORADATA\ORCL\REDO02.LOG
+NO           0     GROUP# STATUS  TYPE
+---------- ------- -------
+MEMBER
+--------------------------------------------------------------------------------
+IS_     CON_ID
+--- ----------          3         ONLINE
+D:\ORADATA\ORCL\REDO03.LOG
+NO           0
+```
 
 7. checking created tables
 ```bat
 SQL>select * From test;
+```
+The output is as Follows:
+
+```bat
+D
+-
+X
 ```
 
 8. Create table in oracle
@@ -741,6 +815,7 @@ SQL>select * From test;
 ```bat
 SQL>   create table test1 as select * From dual;
 ```
+The output is as Follows: **Table created.**
 
 9. Move Group failover From **Secondry server** to **Primary server**
 
@@ -749,7 +824,13 @@ SQL>   create table test1 as select * From dual;
 ```bat
 SQL>select * From test1;
 ```
+The output is as Follows:
 
+```bat
+D
+-
+X
+```
 
 ### Configure a Client
 
