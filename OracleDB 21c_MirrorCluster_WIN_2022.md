@@ -817,7 +817,7 @@ SQL>   create table test1 as select * From dual;
 ```
 The output is as Follows: **Table created.**
 
-9. Move Group failover From **Secondry server** to **Primary server**
+9. Move Group failover From **Secondary server** to **Primary server**
 
 10. checking created tables
 
@@ -940,7 +940,7 @@ X
     - **Service Name** is OracleOraDB21Home1TNSListener
     - **Retry Count at Deactivation failure** should be larger than 0 to avoid a known Oracle Listener stop issue.
     
-### Create Monitor Resources on Webui
+### Create Monitor Resources on WebUI
 
 ##### On Primary Server
 1. Create an Oracle monitor resource
