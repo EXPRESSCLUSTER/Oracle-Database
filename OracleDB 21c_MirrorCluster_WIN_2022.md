@@ -428,7 +428,7 @@ Database mounted.
 ```
 
 
-8. Set new location of the database (*.DBF) files by executing the following command for all moved database files:
+8. Set Mirror Disk location of the database (*.DBF) files by executing the following command for all moved database files:
 
 ```bat
 SQL> alter database rename file <original file path> to <new file path>;
