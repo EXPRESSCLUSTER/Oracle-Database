@@ -1,4 +1,4 @@
-# Oracle Database 21c QSG for EXPRESSCLUSTER X (Linux)
+# Oracle Database 21c Quick Startup Guide for EXPRESSCLUSTER X on Linux with Existing Setup
 
 (Existing Oracle installation setup -Database Path set to mirror disk after database creation)
 
@@ -327,7 +327,7 @@ Prepare Oracle HA By using EXPRESSCLUSTER X.
 
 ## Changing the location of the Database files (*.DBF) on the secondary Server
 
-- All the default  (*.DBF) file path is /u01/app/oracle/oradata/ORCL2
+- All the default  (*.DBF) file path is /u01/app/oracle/oradata/ORCL
 
       SQL>Shutdown immediate;
  
