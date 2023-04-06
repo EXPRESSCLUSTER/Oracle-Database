@@ -1,5 +1,7 @@
 # Oracle Database 21c Quick Start Guide for EXPRESSCLUSTER X (LINUX)
 
+(New Oracle installation setup- Database Path set to mirror disk during database creation)
+
 ## About This Guide
 
 This guide provides how to integrate Oracle Database 21c with EXPRESSCLUSTER X 5.0x using mirror disks with 2 nodes. The guide assumes its readers to have EXPRESSCLUSTER X basic knowledge and setup skills.
