@@ -1,4 +1,4 @@
-# Oracle Database 21c Quick Start Guide for EXPRESSCLUSTER X (LINUX)
+# Oracle Database 21c Quick Start Guide for EXPRESSCLUSTER X on Linux with New Setup
 
 (New Oracle installation setup- Database Path set to mirror disk during database creation)
 
